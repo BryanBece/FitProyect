@@ -1,0 +1,393 @@
+/* ===========================================================
+   GENERAL STYLES
+   =========================================================== */
+:root {
+    --primary-color: #ff6b35;
+    --primary-dark: #e84e0f;
+    --secondary-color: #2a2d34;
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --text-color: #333333;
+    --text-muted: #6c757d;
+    --border-color: #dee2e6;
+    --card-bg: #ffffff;
+    --body-bg: #f4f6f9;
+}
+
+body {
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background-color: var(--body-bg);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Bootstrap Override */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+/* Navigation */
+.navbar {
+    background-color: var(--secondary-color);
+    padding: 1rem 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    transition: color 0.2s;
+    padding: 0.5rem 1rem;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
+    color: white;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    background-color: var(--card-bg);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-bottom: none;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Section Titles */
+.section-title {
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    position: relative;
+    color: var(--secondary-color);
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    height: 3px;
+    width: 50px;
+    background-color: var(--primary-color);
+    bottom: -10px;
+    left: 0;
+    border-radius: 10px;
+}
+
+.text-center .section-title::after {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Footer */
+.footer {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 2rem 0;
+    margin-top: 2rem;
+}
+
+.btn-social {
+    height: 2.5rem;
+    width: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+}
+
+/* ===========================================================
+   HOME PAGE STYLES
+   =========================================================== */
+
+/* Hero Section */
+.hero {
+    padding: 4rem 0;
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8Z3ltfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    border-radius: 10px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    margin-bottom: 2rem;
+}
+
+/* Level Cards */
+.level-card {
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.level-card.active {
+    border: 2px solid var(--primary-color);
+    transform: scale(1.03);
+}
+
+.level-card .icon-wrapper {
+    height: 80px;
+    width: 80px;
+    margin: 0 auto;
+    background-color: rgba(255, 107, 53, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--primary-color);
+}
+
+.level-title {
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+/* Benefits Section */
+.icon-circle {
+    height: 70px;
+    width: 70px;
+    margin: 0 auto;
+    background-color: rgba(255, 107, 53, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+/* Routine Cards */
+.routine-card {
+    border-left: 4px solid var(--primary-color);
+}
+
+/* CTA Section */
+.cta {
+    background-color: var(--secondary-color);
+    color: white;
+    border-radius: 10px;
+    padding: 3rem 0;
+    margin: 2rem 0;
+}
+
+/* ===========================================================
+   EXERCISES PAGE STYLES
+   =========================================================== */
+
+.exercise-card {
+    transition: transform 0.3s;
+}
+
+.exercise-card:hover {
+    transform: translateY(-5px);
+}
+
+.detail-item {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.detail-item i {
+    width: 20px;
+    margin-right: 8px;
+}
+
+/* ===========================================================
+   WEEKLY PLAN PAGE STYLES
+   =========================================================== */
+
+.calendar-day {
+    transition: transform 0.3s;
+}
+
+.calendar-day.today {
+    border: 2px solid var(--primary-color);
+}
+
+.calendar-day:hover {
+    transform: translateY(-5px);
+}
+
+.day-routine {
+    background-color: rgba(255, 107, 53, 0.1);
+    border-left: 3px solid var(--primary-color);
+}
+
+.routine-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.routine-description {
+    color: var(--text-muted);
+}
+
+/* ===========================================================
+   DAILY ROUTINE PAGE STYLES
+   =========================================================== */
+
+.exercise-meta {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.weight-recommendation {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background-color: rgba(255, 107, 53, 0.1);
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+/* ===========================================================
+   PROFILE PAGE STYLES
+   =========================================================== */
+
+.avatar-circle {
+    width: 100px;
+    height: 100px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-text {
+    font-size: 3rem;
+    color: white;
+    font-weight: 600;
+}
+
+.stat-card {
+    background-color: rgba(255, 107, 53, 0.1);
+}
+
+.stat-icon {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.stat-value {
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.day-card {
+    background-color: #f8f9fa;
+    border-left: 3px solid var(--primary-color);
+}
+
+.day-card.today {
+    background-color: rgba(255, 107, 53, 0.1);
+    border: 1px solid var(--primary-color);
+}
+
+.day-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.completed-indicator {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.rest-day-indicator {
+    color: var(--text-muted);
+}
+
+/* ===========================================================
+   TIMER STYLES
+   =========================================================== */
+
+.timer-display {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.timer-phase {
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    background-color: rgba(255, 107, 53, 0.1);
+    border-radius: 50px;
+    display: inline-block;
+}
+
+/* ===========================================================
+   RESPONSIVE ADJUSTMENTS
+   =========================================================== */
+
+@media (max-width: 767.98px) {
+    .card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero {
+        padding: 2rem 0;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .timer-display {
+        font-size: 2.8rem;
+    }
+}

@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Ejercicios con Pesas para Adelgazar {% endblock %}
+
+{% block content %}
+<div class="container">
+    <header class="page-header mb-4">
+        <h1 class="display-5">Ejercicios con Pesas para Adelgazar</h1>
+        <p class="lead">Explora nuestra colección de ejercicios con pesas diseñados para ayudarte a perder peso y tonificar tu cuerpo.</p>
+    </header>
+    
+    <!-- Filters -->
+    <div class="filters mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><i class="fas fa-filter me-2"></i>Filtros</h5>
+                <form id="filter-form" method="get" action="{{ url_for('exercises') }}" class="row g-3">
+                    <!-- Level Filter -->
+                    <div class="col-md-6">
+                        <label for="level" class="form-label">Nivel</label>
+                        <select class="form-select" id="level" name="level" onchange="this.form.submit()">
+                            <option value="principiante" {% if level == 'principiante' %}selected{% endif %}>Principiante</option>
+                            <option value="amateur" {% if level == 'amateur' %}selected{% endif %}>Amateur</option>
+                            <option value="medio" {% if level == 'medio' %}selected{% endif %}>Intermedio</option>
+                            <option value="avanzado" {% if level == 'avanzado' %}selected{% endif %}>Avanzado</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Muscle Group Filter -->
+                    <div class="col-md-6">
+                        <label for="muscle_group" class="form-label">Grupo Muscular</label>
+                        <select class="form-select" id="muscle_group" name="muscle_group" onchange="this.form.submit()">
+                            <option value="">Todos los grupos musculares</option>
+                            {% for group in muscle_groups %}
+                            <option value="{{ group }}" {% if selected_muscle_group == group %}selected{% endif %}>
+                                {{ group }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Exercise Cards -->
+    <div class="row g-4">
+        {% for exercise in exercises %}
+        <div class="col-lg-6">
+            <div class="card h-100 exercise-card">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between">
+                        <h3 class="card-title mb-3">{{ exercise.name }}</h3>
+                        <span class="badge rounded-pill bg-primary align-self-start">{{ exercise.level|capitalize }}</span>
+                    </div>
+                    
+                    <p class="mb-3">{{ exercise.description }}</p>
+                    
+                    <div class="exercise-details mb-3">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="detail-item">
+                                    <i class="fas fa-dumbbell me-2 text-primary"></i>
+                                    <span>{{ exercise.equipment }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="detail-item">
+                                    <i class="fas fa-stopwatch me-2 text-primary"></i>
+                                    <span>{{ exercise.default_duration }} seg / {{ exercise.rest_time }} seg descanso</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="detail-item">
+                                    <i class="fas fa-layer-group me-2 text-primary"></i>
+                                    <span>{{ exercise.muscle_group }}</span>
+                                </div>
+                            </div>
+                            {% if exercise.weight_recommendation %}
+                            <div class="col-12">
+                                <div class="detail-item">
+                                    <i class="fas fa-weight me-2 text-primary"></i>
+                                    <span>{{ exercise.weight_recommendation }}</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-primary" 
+                                onclick="startTimer({{ exercise.id }}, '{{ exercise.name }}', {{ exercise.default_duration }}, {{ exercise.rest_time }})">
+                            <i class="fas fa-stopwatch me-1"></i> Iniciar Temporizador
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if not exercises %}
+    <div class="alert alert-info my-4">
+        No se encontraron ejercicios con los filtros seleccionados. Intenta con otros criterios.
+    </div>
+    {% endif %}
+</div>
+
+<!-- Timer Modal -->
+<div class="modal fade" id="timerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="timerTitle">Temporizador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="timer-phase mb-3" id="timerPhase">¡Prepárate!</div>
+                <div class="timer-display mb-4">
+                    <span id="timerMinutes">00</span>:<span id="timerSeconds">00</span>
+                </div>
+                <div class="progress mb-4">
+                    <div id="timerProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                </div>
+                <div id="timerStatus" class="mb-3">Ejercicio: <span id="exerciseName"></span></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="pauseTimer">
+                    <i class="fas fa-pause me-1"></i> Pausar
+                </button>
+                <button type="button" class="btn btn-primary" id="resetTimer">
+                    <i class="fas fa-redo me-1"></i> Reiniciar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+{% endblock %}

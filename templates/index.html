@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - Entrenamiento con Pesas para Adelgazar{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <section class="hero py-5 text-center">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <h1 class="display-4 fw-bold mb-3">Transforma tu cuerpo con FitPesas</h1>
+                <p class="lead mb-4">Rutinas de entrenamiento con pesas diseñadas para ayudarte a perder peso y tonificar tu cuerpo. Elige tu nivel y comienza hoy mismo.</p>
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <a href="{{ url_for('weekly_plan') }}" class="btn btn-primary btn-lg px-4 me-sm-3">Ver Plan Semanal</a>
+                    <a href="{{ url_for('exercises') }}" class="btn btn-outline-secondary btn-lg px-4">Explorar Ejercicios</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Today's Workout Section -->
+    {% if today_routine %}
+    <section class="today-workout my-5">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white">
+                <h3 class="m-0"><i class="fas fa-calendar-day me-2"></i>Tu Entrenamiento para Hoy</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h4 class="mb-3">{{ today_routine.name }}</h4>
+                        <p class="text-muted mb-3">{{ today_routine.description }}</p>
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge rounded-pill bg-primary me-2">{{ today_routine.level|capitalize }}</span>
+                            <span class="text-muted"><i class="fas fa-clock me-1"></i>Aprox. 40-60 minutos</span>
+                        </div>
+                        <a href="{{ url_for('routine_detail', routine_id=today_routine.id) }}" class="btn btn-primary">
+                            <i class="fas fa-play-circle me-1"></i>Comenzar Entrenamiento
+                        </a>
+                    </div>
+                    <div class="col-md-4 text-center my-3 my-md-0">
+                        <div class="workout-icon">
+                            <i class="fas fa-dumbbell fa-5x text-primary opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Level Selection -->
+    <section class="level-selection my-5">
+        <h2 class="section-title text-center mb-4">Elige tu Nivel de Entrenamiento</h2>
+        <div class="row g-4">
+            <!-- Principiante -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 level-card {% if user_level == 'principiante' %}active{% endif %}">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-wrapper mb-3">
+                            <i class="fas fa-baby fa-3x"></i>
+                        </div>
+                        <h3 class="level-title">Principiante</h3>
+                        <p class="mb-3">Ideal para personas que comienzan a entrenar con pesas o tienen poca experiencia.</p>
+                        <form action="{{ url_for('set_level') }}" method="post">
+                            <button type="submit" name="level" value="principiante" class="btn btn-outline-primary w-100">
+                                {% if user_level == 'principiante' %}
+                                    <i class="fas fa-check-circle me-1"></i>Seleccionado
+                                {% else %}
+                                    Seleccionar
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Amateur -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 level-card {% if user_level == 'amateur' %}active{% endif %}">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-wrapper mb-3">
+                            <i class="fas fa-child fa-3x"></i>
+                        </div>
+                        <h3 class="level-title">Amateur</h3>
+                        <p class="mb-3">Para quienes ya tienen algunos meses de experiencia con pesas y buscan progresar.</p>
+                        <form action="{{ url_for('set_level') }}" method="post">
+                            <button type="submit" name="level" value="amateur" class="btn btn-outline-primary w-100">
+                                {% if user_level == 'amateur' %}
+                                    <i class="fas fa-check-circle me-1"></i>Seleccionado
+                                {% else %}
+                                    Seleccionar
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Intermedio -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 level-card {% if user_level == 'medio' %}active{% endif %}">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-wrapper mb-3">
+                            <i class="fas fa-running fa-3x"></i>
+                        </div>
+                        <h3 class="level-title">Intermedio</h3>
+                        <p class="mb-3">Para personas con al menos un año de entrenamiento consistente con pesas.</p>
+                        <form action="{{ url_for('set_level') }}" method="post">
+                            <button type="submit" name="level" value="medio" class="btn btn-outline-primary w-100">
+                                {% if user_level == 'medio' %}
+                                    <i class="fas fa-check-circle me-1"></i>Seleccionado
+                                {% else %}
+                                    Seleccionar
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Avanzado -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 level-card {% if user_level == 'avanzado' %}active{% endif %}">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-wrapper mb-3">
+                            <i class="fas fa-dumbbell fa-3x"></i>
+                        </div>
+                        <h3 class="level-title">Avanzado</h3>
+                        <p class="mb-3">Para personas con varios años de entrenamiento estructurado con pesas.</p>
+                        <form action="{{ url_for('set_level') }}" method="post">
+                            <button type="submit" name="level" value="avanzado" class="btn btn-outline-primary w-100">
+                                {% if user_level == 'avanzado' %}
+                                    <i class="fas fa-check-circle me-1"></i>Seleccionado
+                                {% else %}
+                                    Seleccionar
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits my-5">
+        <h2 class="section-title text-center mb-4">Beneficios del Entrenamiento con Pesas</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4 text-center">
+                        <div class="icon-circle mb-3">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <h4>Quema de Calorías</h4>
+                        <p>El entrenamiento con pesas aumenta tu metabolismo, quemando calorías incluso después de entrenar.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4 text-center">
+                        <div class="icon-circle mb-3">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <h4>Salud Cardiovascular</h4>
+                        <p>Mejora la salud del corazón, reduce la presión arterial y el colesterol.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4 text-center">
+                        <div class="icon-circle mb-3">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h4>Más Energía</h4>
+                        <p>Aumenta tus niveles de energía diarios y mejora tu calidad de sueño.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Routines -->
+    <section class="featured-routines my-5">
+        <h2 class="section-title text-center mb-4">Rutinas Destacadas para {{ user_level|capitalize }}</h2>
+        
+        <div class="row g-4">
+            {% for routine in routines[:3] %}
+            <div class="col-md-4">
+                <div class="card h-100 routine-card">
+                    <div class="card-body p-4">
+                        <h4 class="mb-3">{{ routine.name }}</h4>
+                        <p class="text-muted mb-3">{{ routine.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge rounded-pill bg-primary">{{ days_of_week[routine.day_of_week] }}</span>
+                            <a href="{{ url_for('routine_detail', routine_id=routine.id) }}" class="btn btn-sm btn-outline-primary">
+                                Ver Detalles
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{{ url_for('weekly_plan') }}" class="btn btn-primary">
+                Ver Todas las Rutinas
+            </a>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta py-5 my-5 text-center">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="mb-3">¿Listo para transformar tu cuerpo?</h2>
+                <p class="lead mb-4">Regístrate gratis para guardar tu progreso, recibir sugerencias personalizadas y mucho más.</p>
+                {% if not session.get('user_id') %}
+                <a href="{{ url_for('register') }}" class="btn btn-lg btn-primary">
+                    <i class="fas fa-user-plus me-2"></i>Crear Cuenta Gratis
+                </a>
+                {% else %}
+                <a href="{{ url_for('profile') }}" class="btn btn-lg btn-primary">
+                    <i class="fas fa-user me-2"></i>Ver Mi Perfil
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

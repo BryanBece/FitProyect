@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ routine.name }} - Rutina de Entrenamiento{% endblock %}
+
+{% block content %}
+<div class="container">
+    <header class="page-header mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('weekly_plan') }}">Plan Semanal</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ routine.name }}</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-start flex-wrap">
+            <div>
+                <h1 class="display-5">{{ routine.name }}</h1>
+                <div class="d-flex gap-2 mb-3 flex-wrap">
+                    <span class="badge rounded-pill bg-primary">{{ routine.level|capitalize }}</span>
+                    <span class="badge rounded-pill bg-secondary">
+                        {% if routine.day_of_week == 0 %}Lunes
+                        {% elif routine.day_of_week == 1 %}Martes
+                        {% elif routine.day_of_week == 2 %}Miércoles
+                        {% elif routine.day_of_week == 3 %}Jueves
+                        {% elif routine.day_of_week == 4 %}Viernes
+                        {% elif routine.day_of_week == 5 %}Sábado
+                        {% elif routine.day_of_week == 6 %}Domingo
+                        {% endif %}
+                    </span>
+                </div>
+                <p class="lead">{{ routine.description }}</p>
+                {% if routine.calories_estimate > 0 %}
+                <div class="mt-2">
+                    <span class="badge rounded-pill bg-danger">
+                        <i class="fas fa-fire me-1"></i> Aprox. {{ routine.calories_estimate }} calorías
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="d-flex gap-2 my-3 my-md-0">
+                {% if session.get('user_id') %}
+                <form action="{{ url_for('toggle_favorite', routine_id=routine.id) }}" method="post">
+                    <button type="submit" class="btn {% if is_favorite %}btn-warning{% else %}btn-outline-warning{% endif %}">
+                        <i class="{% if is_favorite %}fas{% else %}far{% endif %} fa-star me-1"></i>
+                        {% if is_favorite %}Quitar de Favoritos{% else %}Añadir a Favoritos{% endif %}
+                    </button>
+                </form>
+                {% endif %}
+                
+                <form action="{{ url_for('mark_completed', routine_id=routine.id) }}" method="post">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check-circle me-1"></i>Marcar como Completado
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Routine Overview -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="m-0"><i class="fas fa-list-ol me-2"></i>Ejercicios de la Rutina</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for item in exercises %}
+                        <div class="list-group-item p-3">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                <div class="me-auto">
+                                    <h5 class="mb-1">{{ item.order }}. {{ item.exercise.name }}</h5>
+                                    <p class="text-muted mb-2">{{ item.exercise.description }}</p>
+                                    <div class="exercise-meta d-flex flex-wrap gap-3">
+                                        <span><i class="fas fa-layer-group me-1 text-primary"></i> {{ item.exercise.muscle_group }}</span>
+                                        <span><i class="fas fa-sync-alt me-1 text-primary"></i> {{ item.sets }} series x {{ item.reps }} repeticiones</span>
+                                        <span><i class="fas fa-stopwatch me-1 text-primary"></i> {{ item.exercise.default_duration }}s / {{ item.exercise.rest_time }}s descanso</span>
+                                    </div>
+                                    {% if item.exercise.weight_recommendation %}
+                                    <div class="mt-2">
+                                        <span class="weight-recommendation">
+                                            <i class="fas fa-weight me-1 text-primary"></i> Peso recomendado: {{ item.exercise.weight_recommendation }}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="ms-2 mt-3 mt-md-0">
+                                    <button class="btn btn-primary" 
+                                            onclick="startTimer({{ item.exercise.id }}, '{{ item.exercise.name }}', {{ item.exercise.default_duration }}, {{ item.exercise.rest_time }})">
+                                        <i class="fas fa-stopwatch me-1"></i> Iniciar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Workout Summary -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="m-0"><i class="fas fa-info-circle me-2"></i>Resumen</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="d-flex justify-content-between mb-2">
+                            <span>Número de ejercicios:</span>
+                            <strong>{{ exercises|length }}</strong>
+                        </li>
+                        <li class="d-flex justify-content-between mb-2">
+                            <span>Duración aproximada:</span>
+                            <strong>{{ routine.duration_minutes }} minutos</strong>
+                        </li>
+                        <li class="d-flex justify-content-between mb-2">
+                            <span>Dificultad:</span>
+                            <strong>{{ routine.level|capitalize }}</strong>
+                        </li>
+                        <li class="d-flex justify-content-between mb-2">
+                            <span>Calorías estimadas:</span>
+                            <strong>{{ routine.calories_estimate }} cal</strong>
+                        </li>
+                        <li class="d-flex justify-content-between mb-2">
+                            <span>Grupos musculares:</span>
+                            <div class="text-end">
+                                {% set muscle_groups = [] %}
+                                {% for item in exercises %}
+                                    {% if item.exercise.muscle_group not in muscle_groups %}
+                                        {% set muscle_groups = muscle_groups + [item.exercise.muscle_group] %}
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% for group in muscle_groups %}
+                                    <span class="badge bg-secondary mb-1 d-block">{{ group }}</span>
+                                {% endfor %}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Tips -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h3 class="m-0"><i class="fas fa-lightbulb me-2"></i>Consejos</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li class="mb-2">Realiza siempre un calentamiento adecuado antes de comenzar.</li>
+                        <li class="mb-2">Enfócate en la técnica correcta antes de aumentar el peso.</li>
+                        <li class="mb-2">Respeta los tiempos de descanso entre series.</li>
+                        <li class="mb-2">Bebe agua durante el entrenamiento para mantenerte hidratado.</li>
+                        <li>Escucha a tu cuerpo y detente si sientes dolor agudo (no confundir con la sensación de ardor muscular).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Workout Navigator -->
+    <div class="workout-navigator mb-5">
+        <div class="d-flex justify-content-between flex-wrap">
+            <a href="{{ url_for('weekly_plan') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-1"></i> Volver al Plan Semanal
+            </a>
+            
+            <a href="{{ url_for('exercises') }}" class="btn btn-outline-primary">
+                <i class="fas fa-dumbbell me-1"></i> Explorar Más Ejercicios
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Timer Modal -->
+<div class="modal fade" id="timerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="timerTitle">Temporizador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="timer-phase mb-3" id="timerPhase">¡Prepárate!</div>
+                <div class="timer-display mb-4">
+                    <span id="timerMinutes">00</span>:<span id="timerSeconds">00</span>
+                </div>
+                <div class="progress mb-4">
+                    <div id="timerProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                </div>
+                <div id="timerStatus" class="mb-3">Ejercicio: <span id="exerciseName"></span></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="pauseTimer">
+                    <i class="fas fa-pause me-1"></i> Pausar
+                </button>
+                <button type="button" class="btn btn-primary" id="resetTimer">
+                    <i class="fas fa-redo me-1"></i> Reiniciar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+{% endblock %}

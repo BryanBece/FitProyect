@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Perfil - FitPesas{% endblock %}
+
+{% block content %}
+<div class="container">
+    <header class="page-header mb-4">
+        <h1 class="display-5">Mi Perfil</h1>
+        <p class="lead">Gestiona tu progreso y personaliza tu experiencia de entrenamiento</p>
+    </header>
+    
+    <div class="row">
+        <!-- User Info Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="m-0"><i class="fas fa-user me-2"></i>Información Personal</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar-circle mb-3">
+                            <span class="avatar-text">{{ user.username[0]|upper }}</span>
+                        </div>
+                        <h4>{{ user.username }}</h4>
+                        <p class="text-muted">{{ user.email }}</p>
+                    </div>
+                    
+                    <div class="user-stats mb-4">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="stat-card text-center p-2 rounded">
+                                    <div class="stat-icon mb-2">
+                                        <i class="fas fa-signal"></i>
+                                    </div>
+                                    <div class="stat-value">{{ user.level|capitalize }}</div>
+                                    <div class="stat-label small">Nivel Actual</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-card text-center p-2 rounded">
+                                    <div class="stat-icon mb-2">
+                                        <i class="fas fa-fire"></i>
+                                    </div>
+                                    <div class="stat-value">{{ completed_workouts|length }}</div>
+                                    <div class="stat-label small">Entrenamientos</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="stat-card text-center p-2 rounded">
+                                    <div class="stat-icon mb-2">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </div>
+                                    <div class="stat-value">{{ user.created_at.strftime('%d-%m-%Y') }}</div>
+                                    <div class="stat-label small">Miembro desde</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="level-selector">
+                        <h5 class="mb-3">Cambiar Nivel</h5>
+                        <form action="{{ url_for('set_level') }}" method="post">
+                            <div class="d-grid gap-2">
+                                <button type="submit" name="level" value="principiante" 
+                                        class="btn {% if user.level == 'principiante' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                                    Principiante
+                                </button>
+                                <button type="submit" name="level" value="amateur" 
+                                        class="btn {% if user.level == 'amateur' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                                    Amateur
+                                </button>
+                                <button type="submit" name="level" value="medio" 
+                                        class="btn {% if user.level == 'medio' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                                    Intermedio
+                                </button>
+                                <button type="submit" name="level" value="avanzado" 
+                                        class="btn {% if user.level == 'avanzado' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                                    Avanzado
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Activity & Progress -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="m-0"><i class="fas fa-chart-line me-2"></i>Actividad y Progreso</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="history-tab" data-bs-toggle="tab" 
+                                    data-bs-target="#history" type="button" role="tab">
+                                <i class="fas fa-history me-1"></i>Historial
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="favorites-tab" data-bs-toggle="tab" 
+                                    data-bs-target="#favorites" type="button" role="tab">
+                                <i class="fas fa-star me-1"></i>Favoritos
+                            </button>
+                        </li>
+                        <li class="nav-item ms-auto">
+                            <a href="{{ url_for('reports') }}" class="nav-link text-primary">
+                                <i class="fas fa-chart-bar me-1"></i>Ver Reportes Completos
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content p-3">
+                        <!-- History Tab -->
+                        <div class="tab-pane fade show active" id="history" role="tabpanel">
+                            <h4 class="mb-3">Entrenamientos Recientes</h4>
+                            
+                            {% if completed_workouts %}
+                                <div class="list-group">
+                                    {% for workout in completed_workouts %}
+                                    <a href="{{ url_for('routine_detail', routine_id=workout.routine_id) }}" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">{{ workout.routine.name }}</h5>
+                                            <small>{{ workout.completed_at.strftime('%d-%m-%Y') }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ workout.routine.description }}</p>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge rounded-pill bg-primary me-2">{{ workout.routine.level|capitalize }}</span>
+                                            <small class="text-muted">
+                                                {% if workout.routine.day_of_week == 0 %}Lunes
+                                                {% elif workout.routine.day_of_week == 1 %}Martes
+                                                {% elif workout.routine.day_of_week == 2 %}Miércoles
+                                                {% elif workout.routine.day_of_week == 3 %}Jueves
+                                                {% elif workout.routine.day_of_week == 4 %}Viernes
+                                                {% elif workout.routine.day_of_week == 5 %}Sábado
+                                                {% elif workout.routine.day_of_week == 6 %}Domingo
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <div class="mb-3">
+                                        <i class="fas fa-dumbbell fa-3x text-muted"></i>
+                                    </div>
+                                    <p class="text-muted">Aún no has completado ningún entrenamiento</p>
+                                    <a href="{{ url_for('weekly_plan') }}" class="btn btn-primary">
+                                        <i class="fas fa-play-circle me-1"></i>Comenzar mi primer entrenamiento
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Favorites Tab -->
+                        <div class="tab-pane fade" id="favorites" role="tabpanel">
+                            <h4 class="mb-3">Rutinas Favoritas</h4>
+                            
+                            {% if favorites %}
+                                <div class="list-group">
+                                    {% for favorite in favorites %}
+                                    <a href="{{ url_for('routine_detail', routine_id=favorite.routine_id) }}" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">{{ favorite.routine.name }}</h5>
+                                            <small>Añadido el {{ favorite.added_at.strftime('%d-%m-%Y') }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ favorite.routine.description }}</p>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge rounded-pill bg-primary me-2">{{ favorite.routine.level|capitalize }}</span>
+                                            <small class="text-muted">
+                                                {% if favorite.routine.day_of_week == 0 %}Lunes
+                                                {% elif favorite.routine.day_of_week == 1 %}Martes
+                                                {% elif favorite.routine.day_of_week == 2 %}Miércoles
+                                                {% elif favorite.routine.day_of_week == 3 %}Jueves
+                                                {% elif favorite.routine.day_of_week == 4 %}Viernes
+                                                {% elif favorite.routine.day_of_week == 5 %}Sábado
+                                                {% elif favorite.routine.day_of_week == 6 %}Domingo
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <div class="mb-3">
+                                        <i class="far fa-star fa-3x text-muted"></i>
+                                    </div>
+                                    <p class="text-muted">Aún no has añadido rutinas a favoritos</p>
+                                    <a href="{{ url_for('weekly_plan') }}" class="btn btn-primary">
+                                        <i class="fas fa-search me-1"></i>Explorar rutinas
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Weekly Overview -->
+    <div class="card shadow mb-5">
+        <div class="card-header bg-primary text-white">
+            <h3 class="m-0"><i class="fas fa-calendar-week me-2"></i>Resumen Semanal</h3>
+        </div>
+        <div class="card-body p-4">
+            <div class="week-overview">
+                {% set days_of_week = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"] %}
+                <div class="row">
+                    {% for day_num in range(7) %}
+                    <div class="col-md-4 col-lg-3 mb-3">
+                        <div class="day-card {% if day_num == current_weekday %}today{% endif %} p-3 rounded">
+                            <h5 class="day-title">{{ days_of_week[day_num] }}</h5>
+                            
+                            {% set routine_found = false %}
+                            {% for workout in completed_workouts %}
+                                {% if workout.completed_at.date() == current_date and workout.routine.day_of_week == day_num %}
+                                    {% set routine_found = true %}
+                                    <div class="completed-indicator">
+                                        <i class="fas fa-check-circle text-success"></i> Completado
+                                    </div>
+                                    <div class="day-routine-name">{{ workout.routine.name }}</div>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if not routine_found %}
+                                {% set routine = get_routine_by_day_and_level(day_num, user.level) %}
+                                {% if routine %}
+                                    <div class="day-routine-name">{{ routine.name }}</div>
+                                    <a href="{{ url_for('routine_detail', routine_id=routine.id) }}" class="btn btn-sm btn-primary mt-2">
+                                        Ver Rutina
+                                    </a>
+                                {% else %}
+                                    <div class="rest-day-indicator">
+                                        <i class="fas fa-battery-empty"></i> Descanso
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Scripts personalizados para la página de perfil
+</script>
+{% endblock %}

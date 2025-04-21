@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Plan de Entrenamiento Semanal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <header class="page-header mb-4">
+        <h1 class="display-5">Plan de Entrenamiento Semanal</h1>
+        <p class="lead">Organiza tu semana con nuestras rutinas de ejercicios diseñadas para ayudarte a perder peso con pesas.</p>
+    </header>
+    
+    <!-- Level Selection -->
+    <div class="level-selector mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><i class="fas fa-signal me-2"></i>Nivel de Entrenamiento</h5>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_for('weekly_plan', level='principiante') }}" 
+                       class="btn {% if level == 'principiante' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        Principiante
+                    </a>
+                    <a href="{{ url_for('weekly_plan', level='amateur') }}" 
+                       class="btn {% if level == 'amateur' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        Amateur
+                    </a>
+                    <a href="{{ url_for('weekly_plan', level='medio') }}" 
+                       class="btn {% if level == 'medio' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        Intermedio
+                    </a>
+                    <a href="{{ url_for('weekly_plan', level='avanzado') }}" 
+                       class="btn {% if level == 'avanzado' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        Avanzado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Weekly Calendar -->
+    <div class="weekly-calendar mb-5">
+        <div class="row g-3">
+            {% for day_num in range(7) %}
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100 shadow-sm calendar-day {% if day_num == current_weekday %}today{% endif %}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ days_of_week[day_num] }}</h5>
+                        {% if day_num == current_weekday %}
+                        <span class="badge bg-primary">Hoy</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body p-3">
+                        {% if routines_by_day[day_num] %}
+                            {% for routine in routines_by_day[day_num] %}
+                            <div class="day-routine p-3 mb-3 rounded">
+                                <h6 class="routine-title">{{ routine.name }}</h6>
+                                <p class="routine-description small mb-2">{{ routine.description }}</p>
+                                {% if routine.calories_estimate > 0 %}
+                                <div class="mb-2">
+                                    <span class="badge bg-danger me-1">
+                                        <i class="fas fa-fire me-1"></i> {{ routine.calories_estimate }} cal
+                                    </span>
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-clock me-1"></i> {{ routine.duration_minutes }} min
+                                    </span>
+                                </div>
+                                {% endif %}
+                                <a href="{{ url_for('routine_detail', routine_id=routine.id) }}" class="btn btn-sm btn-primary w-100">
+                                    <i class="fas fa-play-circle me-1"></i>Ver Rutina
+                                </a>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-battery-empty fa-2x text-muted"></i>
+                                </div>
+                                <p class="text-muted">Día de descanso</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Recommended Weekly Structure -->
+    <section class="weekly-structure mb-5">
+        <h2 class="section-title mb-4">Estructura de Entrenamiento Recomendada</h2>
+        
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h4 class="mb-3">Recomendaciones para {{ level|capitalize }}</h4>
+                        
+                        {% if level == 'principiante' %}
+                        <p>Para principiantes se recomienda:</p>
+                        <ul>
+                            <li>3 días de entrenamiento a la semana</li>
+                            <li>Enfocarse en rutinas de cuerpo completo</li>
+                            <li>Descansar al menos un día entre sesiones</li>
+                            <li>Enfocarse en la técnica y forma correcta</li>
+                            <li>Empezar con pesos ligeros e ir progresando</li>
+                        </ul>
+                        {% elif level == 'amateur' %}
+                        <p>Para nivel amateur se recomienda:</p>
+                        <ul>
+                            <li>3-4 días de entrenamiento a la semana</li>
+                            <li>Dividir el entrenamiento por grupos musculares</li>
+                            <li>Aumentar progresivamente la intensidad</li>
+                            <li>Incluir ejercicios compuestos y aislados</li>
+                            <li>Mantener registro de pesos y repeticiones</li>
+                        </ul>
+                        {% elif level == 'medio' %}
+                        <p>Para nivel intermedio se recomienda:</p>
+                        <ul>
+                            <li>4-5 días de entrenamiento a la semana</li>
+                            <li>Dividir rutinas por grupos musculares específicos</li>
+                            <li>Variar la intensidad y técnicas de entrenamiento</li>
+                            <li>Implementar series y repeticiones variadas</li>
+                            <li>Prestar atención a la alimentación y recuperación</li>
+                        </ul>
+                        {% elif level == 'avanzado' %}
+                        <p>Para nivel avanzado se recomienda:</p>
+                        <ul>
+                            <li>5-6 días de entrenamiento a la semana</li>
+                            <li>Incluir técnicas avanzadas como dropsets, supersets, etc.</li>
+                            <li>Periodizar el entrenamiento con fases específicas</li>
+                            <li>Prestar especial atención a la recuperación</li>
+                            <li>Nutrición personalizada para objetivos específicos</li>
+                        </ul>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <h4 class="mb-3">Consejos para Adelgazar con Pesas</h4>
+                        <ul>
+                            <li>Combina el entrenamiento de fuerza con actividad cardiovascular</li>
+                            <li>Mantén alta la intensidad para maximizar el gasto calórico</li>
+                            <li>Prioriza ejercicios compuestos que trabajan múltiples grupos musculares</li>
+                            <li>Cuida tu alimentación, mantén un déficit calórico moderado</li>
+                            <li>Asegúrate de consumir suficiente proteína para preservar masa muscular</li>
+                            <li>Descansa adecuadamente para optimizar la recuperación</li>
+                            <li>Sé consistente con tu entrenamiento</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Call to Action -->
+    <section class="cta text-center py-4 my-4">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h3 class="mb-3">¿Listo para comenzar tu entrenamiento?</h3>
+                <p class="lead mb-4">Elige la rutina de hoy o personaliza tu programa semanal para alcanzar tus objetivos.</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    {% if routines_by_day[current_weekday] %}
+                    <a href="{{ url_for('routine_detail', routine_id=routines_by_day[current_weekday][0].id) }}" class="btn btn-primary">
+                        <i class="fas fa-play-circle me-1"></i>Comenzar Rutina de Hoy
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('exercises') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-dumbbell me-1"></i>Ver Todos los Ejercicios
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Scripts personalizados para la página de plan semanal
+</script>
+{% endblock %}

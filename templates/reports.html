@@ -1,0 +1,441 @@
+{% extends 'base.html' %}
+
+{% block title %}Reportes - FitPesas{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <h1 class="mb-3">Mis Reportes de Progreso</h1>
+            <p class="lead">Analiza tu progreso, tendencias de entrenamiento y resultados para mantener la motivación.</p>
+        </div>
+        <div class="col-lg-4 text-end d-flex align-items-center justify-content-end">
+            <a href="{{ url_for('add_progress') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-1"></i>Registrar Progreso
+            </a>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="row mb-5">
+        <!-- Total Workouts Card -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-dumbbell fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="card-title">
+                        {{ completed_workouts_count|default(0) }}
+                    </h3>
+                    <p class="card-text text-muted">Entrenamientos Completados</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Weight Card -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-weight fa-3x text-success"></i>
+                    </div>
+                    <h3 class="card-title">
+                        {% if weight_progress and weight_progress|length > 0 %}
+                            {{ weight_progress[-1].weight|default("--") }} kg
+                        {% else %}
+                            --
+                        {% endif %}
+                    </h3>
+                    <p class="card-text text-muted">Peso Actual</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Calories Card -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-fire fa-3x text-danger"></i>
+                    </div>
+                    <h3 class="card-title">
+                        {{ total_calories|default(0) }}
+                    </h3>
+                    <p class="card-text text-muted">Calorías Quemadas (últimos 30 días)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Minutes Card -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-clock fa-3x text-info"></i>
+                    </div>
+                    <h3 class="card-title">
+                        {{ total_minutes|default(0) }}
+                    </h3>
+                    <p class="card-text text-muted">Minutos de Entrenamiento (últimos 30 días)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and data visualizations -->
+    <div class="row mb-5">
+        <!-- Workouts by Month Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Entrenamientos Completados por Mes</h5>
+                </div>
+                <div class="card-body">
+                    {% if workouts_by_month and workouts_by_month|length > 0 %}
+                        <canvas id="workoutsChart" height="250"></canvas>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-chart-line fa-3x text-muted"></i>
+                            </div>
+                            <p class="text-muted">No hay datos suficientes para mostrar el gráfico</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Calories by Week Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Calorías Quemadas por Semana</h5>
+                </div>
+                <div class="card-body">
+                    {% if calories_by_week and calories_by_week|length > 0 %}
+                        <canvas id="caloriesChart" height="250"></canvas>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-fire fa-3x text-muted"></i>
+                            </div>
+                            <p class="text-muted">No hay datos suficientes para mostrar el gráfico</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <!-- Weight Progress Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Progreso de Peso</h5>
+                </div>
+                <div class="card-body">
+                    {% if weight_progress and weight_progress|length > 0 %}
+                        <canvas id="weightChart" height="250"></canvas>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-weight fa-3x text-muted"></i>
+                            </div>
+                            <p class="text-muted">No has registrado tu peso aún</p>
+                            <a href="{{ url_for('add_progress') }}" class="btn btn-sm btn-primary">
+                                Registrar Peso
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Muscle Group Distribution Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Distribución de Entrenamiento por Grupo Muscular</h5>
+                </div>
+                <div class="card-body">
+                    {% if muscle_distribution and muscle_distribution|length > 0 %}
+                        <canvas id="muscleChart" height="250"></canvas>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-chart-pie fa-3x text-muted"></i>
+                            </div>
+                            <p class="text-muted">No hay datos suficientes para mostrar el gráfico</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Training Minutes by Month Chart -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Tiempo de Entrenamiento por Mes (minutos)</h5>
+                </div>
+                <div class="card-body">
+                    {% if training_time_by_month and training_time_by_month|length > 0 %}
+                        <canvas id="timeChart" height="150"></canvas>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-clock fa-3x text-muted"></i>
+                            </div>
+                            <p class="text-muted">No hay datos suficientes para mostrar el gráfico</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress History Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Historial de Progreso</h5>
+                </div>
+                <div class="card-body">
+                    {% if weight_progress and weight_progress|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Peso (kg)</th>
+                                        <th>Calorías Quemadas</th>
+                                        <th>Minutos de Entrenamiento</th>
+                                        <th>Notas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for progress in weight_progress|reverse %}
+                                    <tr>
+                                        <td>{{ progress.date.strftime('%d/%m/%Y') }}</td>
+                                        <td>{{ progress.weight }}</td>
+                                        <td>{{ progress.calories_burned }}</td>
+                                        <td>{{ progress.workout_minutes }}</td>
+                                        <td>{{ progress.note }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-clipboard-list fa-3x text-muted"></i>
+                            </div>
+                            <p class="text-muted">No has registrado ningún progreso aún</p>
+                            <a href="{{ url_for('add_progress') }}" class="btn btn-primary">
+                                <i class="fas fa-plus-circle me-1"></i>Registrar Progreso
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuración común para los gráficos
+        Chart.defaults.font.family = 'Rubik, sans-serif';
+        
+        // Variables para datos provenientes de Flask
+        {% if workouts_by_month and workouts_by_month|length > 0 %}
+        // Workouts by Month Chart
+        var workoutsCtx = document.getElementById('workoutsChart').getContext('2d');
+        var workoutsData = {
+            labels: [
+                {% for item in workouts_by_month %}
+                "{{ item.month }}",
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Entrenamientos',
+                data: [
+                    {% for item in workouts_by_month %}
+                    {{ item.count }},
+                    {% endfor %}
+                ],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        };
+        new Chart(workoutsCtx, {
+            type: 'bar',
+            data: workoutsData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+        {% endif %}
+        
+        {% if calories_by_week and calories_by_week|length > 0 %}
+        // Calories by Week Chart
+        var caloriesCtx = document.getElementById('caloriesChart').getContext('2d');
+        var caloriesData = {
+            labels: [
+                {% for item in calories_by_week %}
+                "Semana {{ item.week }}",
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Calorías',
+                data: [
+                    {% for item in calories_by_week %}
+                    {{ item.calories }},
+                    {% endfor %}
+                ],
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        };
+        new Chart(caloriesCtx, {
+            type: 'bar',
+            data: caloriesData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        {% endif %}
+        
+        {% if weight_progress and weight_progress|length > 0 %}
+        // Weight Progress Chart
+        var weightCtx = document.getElementById('weightChart').getContext('2d');
+        var weightData = {
+            labels: [
+                {% for progress in weight_progress %}
+                "{{ progress.date.strftime('%d/%m/%Y') }}",
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Peso (kg)',
+                data: [
+                    {% for progress in weight_progress %}
+                    {{ progress.weight }},
+                    {% endfor %}
+                ],
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                tension: 0.2
+            }]
+        };
+        new Chart(weightCtx, {
+            type: 'line',
+            data: weightData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+        {% endif %}
+        
+        {% if muscle_distribution and muscle_distribution|length > 0 %}
+        // Muscle Group Distribution Chart
+        var muscleCtx = document.getElementById('muscleChart').getContext('2d');
+        var muscleData = {
+            labels: [
+                {% for item in muscle_distribution %}
+                "{{ item.muscle_group }}",
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Frecuencia',
+                data: [
+                    {% for item in muscle_distribution %}
+                    {{ item.count }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)',
+                    'rgba(255, 159, 64, 0.5)'
+                ],
+                borderWidth: 1
+            }]
+        };
+        new Chart(muscleCtx, {
+            type: 'pie',
+            data: muscleData,
+            options: {
+                responsive: true
+            }
+        });
+        {% endif %}
+        
+        {% if training_time_by_month and training_time_by_month|length > 0 %}
+        // Training Time by Month Chart
+        var timeCtx = document.getElementById('timeChart').getContext('2d');
+        var timeData = {
+            labels: [
+                {% for item in training_time_by_month %}
+                "{{ item.month }}",
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Minutos',
+                data: [
+                    {% for item in training_time_by_month %}
+                    {{ item.total_minutes }},
+                    {% endfor %}
+                ],
+                backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        };
+        new Chart(timeCtx, {
+            type: 'bar',
+            data: timeData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        {% endif %}
+    });
+</script>
+{% endblock %}

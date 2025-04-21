@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar Progreso - FitPesas{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">Registrar Progreso</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('add_progress') }}">
+                        <div class="mb-4">
+                            <label for="date" class="form-label">Fecha</label>
+                            <input type="date" class="form-control" id="date" name="date" value="{{ today_date }}" required>
+                            <div class="form-text">Fecha para la cual estás registrando tu progreso</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="weight" class="form-label">Peso (kg)</label>
+                            <input type="number" class="form-control" id="weight" name="weight" step="0.1" min="30" max="200" placeholder="Ejemplo: 75.5">
+                            <div class="form-text">Tu peso actual en kilogramos (opcional)</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="note" class="form-label">Notas</label>
+                            <textarea class="form-control" id="note" name="note" rows="4" placeholder="Ingresa observaciones sobre tu progreso, sensaciones, o metas cumplidas..."></textarea>
+                            <div class="form-text">Notas adicionales sobre tu progreso (opcional)</div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Las calorías quemadas y tiempo de entrenamiento se calcularán automáticamente basado en tus rutinas completadas del último mes.
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('reports') }}" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar Progreso</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
